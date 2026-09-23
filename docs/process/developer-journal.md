@@ -149,6 +149,14 @@ This journal records the visible engineering process for the Benji take-home: ev
 
 **Assistant (summary)** — Wrote ten user stories and a requirement traceability matrix, identifying unresolved behavior and evidence for each. Marked the specification as not yet ready, clarified that the prior iteration table is provisional rather than a detailed development plan, and set the sequence to spec finalization, detailed plan, then small SDD-TDD implementation slices.
 
+### Turn 13 — meaning of resolving a spec gap
+
+**Dror (verbatim)**
+
+> What do you mean by “resolving”? Adjusting the spec?
+
+**Assistant (summary)** — Clarified that resolving a gap means choosing the intended behavior, updating the system spec and relevant user-story acceptance criteria to state it unambiguously, and checking for contradictions. A detailed development plan and implementation follow only after the spec is ready.
+
 ## Maintenance rule
 
 For each subsequent substantive turn, append Dror's task message exactly as written and summarize the assistant's completed work in one short paragraph. Update the decision log when a choice is made or revised, label unverified ideas as proposals, keep `docs/spec` aligned, and mirror the journal to the same Obsidian note. Do not rewrite earlier user messages; add a dated correction if a transcription error is found.
