@@ -5,7 +5,8 @@ A one-day fullstack take-home exercise for a locally runnable webhook delivery s
 **Current status:** planning and design. No backend, frontend, or runnable demo has been implemented yet.
 
 - [Working specification](docs/spec/spec-design-webhook-notifications.md)
-- [SDD-TDD iteration plan](docs/spec/spec-process-sdd-tdd-iterations.md)
+- [User stories and spec readiness](docs/spec/spec-design-user-stories.md)
+- [Provisional SDD-TDD iteration sequence](docs/spec/spec-process-sdd-tdd-iterations.md)
 - [Security and scalability boundaries](docs/spec/spec-architecture-security-and-scale.md)
 - [Developer journal and conversation record](docs/process/developer-journal.md)
 - [Original assignment](https://even-foxglove-53c.notion.site/Sr-Software-Engineer-380b9f151bae81218487d84c42741d17)

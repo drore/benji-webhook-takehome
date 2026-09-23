@@ -1,5 +1,5 @@
 ---
-title: SDD-TDD iteration plan for the webhook take-home
+title: Provisional SDD-TDD iteration sequence for the webhook take-home
 version: 0.1-draft
 date_created: 2026-09-23
 last_updated: 2026-09-23
@@ -9,7 +9,7 @@ tags: [process, sdd, tdd, iterations, take-home]
 
 # Introduction
 
-This plan applies Dror's preferred specification-driven development (SDD) and test-driven development (TDD) approach to the [Benji webhook assignment](https://even-foxglove-53c.notion.site/Sr-Software-Engineer-380b9f151bae81218487d84c42741d17). It is a working sequence, not a claim that any slice has been implemented. The [system design spec](spec-design-webhook-notifications.md) remains the source for product requirements and open behavior decisions.
+This document sketches the possible order for Dror's specification-driven development (SDD) and test-driven development (TDD) approach to the [Benji webhook assignment](https://even-foxglove-53c.notion.site/Sr-Software-Engineer-380b9f151bae81218487d84c42741d17). **It is not the detailed development plan and does not authorize implementation.** First finalize the [system design spec](spec-design-webhook-notifications.md) using the [user-story readiness review](spec-design-user-stories.md); then write the detailed plan. No slice has been implemented.
 
 ## 1. Purpose and scope
 
@@ -41,7 +41,7 @@ The order favors the large shape of the system before refining a small detail. A
 
 ## 4. Interfaces and data contracts
 
-Contracts are finalized when their slice begins. The first slice needs only enough fields to identify an event, a delivery, its endpoint, and its current outcome. Later slices extend the same path with configurable subscriptions, idempotency, signatures, attempts, retries, and replay. The [system design spec](spec-design-webhook-notifications.md#4-interfaces-and-data-contracts) records the conceptual entities; exact API paths and field names are not fixed here.
+Product behavior and externally visible contract semantics are finalized in the specification before writing the detailed plan. The detailed plan will choose concrete API paths, field names, tests, and slice boundaries. The first slice will need only enough fields to identify an event, a delivery, its endpoint, and its current outcome; later slices can extend the same path while preserving the approved behavior. The [system design spec](spec-design-webhook-notifications.md#4-interfaces-and-data-contracts) records the current conceptual entities.
 
 Each new contract must state how failure appears to callers and how the dashboard reflects the server's authoritative state. A frontend-only simulation does not satisfy an integration slice.
 
@@ -74,7 +74,7 @@ Use focused unit tests for policy and signing, integration tests for SQLite/work
 
 ## 8. Rationale and context
 
-The bridge analogy applies to the whole product and to each feature. The marble-statue analogy clarifies sequencing: establish the large form before refining a small visual or technical detail. Both imply frequent working checkpoints, not a large design phase followed by one large coding phase. The spec is revised just before each slice and when evidence changes a decision.
+The bridge analogy applies to the whole product and to each feature. The marble-statue analogy clarifies sequencing: establish the large form before refining a small visual or technical detail. Both imply frequent working checkpoints after the spec and detailed plan are ready. Once finalized, the spec may still be revised when implementation evidence changes a decision; record that change before the affected slice proceeds.
 
 ## 9. Dependencies and external integrations
 
@@ -88,4 +88,4 @@ For the first system rope, one fixed receiver and one event type are sufficient 
 
 ## 11. Validation and related material
 
-Before starting a slice, confirm its acceptance criteria and unresolved behavior choices. After implementation, verify the tested local path and record what remains unproven. Keep the [developer journal](../process/developer-journal.md) current and maintain the corresponding Obsidian copy. See the [assignment](https://even-foxglove-53c.notion.site/Sr-Software-Engineer-380b9f151bae81218487d84c42741d17) and [system design spec](spec-design-webhook-notifications.md).
+Before starting any slice, complete the [story-based spec readiness gate](spec-design-user-stories.md#5-spec-readiness-gate) and detailed development plan. During implementation, verify the tested local path and record what remains unproven. Keep the [developer journal](../process/developer-journal.md) current and maintain the corresponding Obsidian copy. See the [assignment](https://even-foxglove-53c.notion.site/Sr-Software-Engineer-380b9f151bae81218487d84c42741d17) and [system design spec](spec-design-webhook-notifications.md).

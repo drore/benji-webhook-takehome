@@ -31,15 +31,13 @@ This journal records the visible engineering process for the Benji take-home: ev
 | 2026-09-23 | Public repository | Publish the current planning workspace at `https://github.com/drore/benji-webhook-takehome` and continue the exercise there. | Explicit request from Dror; repository created under his authenticated GitHub account. |
 | 2026-09-23 | SDD-TDD development cadence | Specify and test behavior in small iterations, make the smallest version work, then enhance it. Apply this at both whole-system and individual-feature scales. | Explicit preference from Dror. His bridge and marble-statue analogies clarify that the broad working structure comes before detail refinement. |
 | 2026-09-23 | Security and scale | Treat URL safety, signing, idempotency, bounds, crash recovery, and observable backlog as design concerns from their first relevant slice. Keep local verification distinct from production capacity or readiness claims. | Explicit direction from Dror; risks and local test strategy recorded in the security/scale spec. |
+| 2026-09-23 | Spec before plan before code | Use user stories to test specification completeness; finalize product behavior, then write a detailed development plan, then implement in small SDD-TDD slices. The existing iteration table is only a provisional sequence. | Explicit correction from Dror. The story review currently finds coverage of every assignment requirement but unresolved behavior in every story. |
 
 ## Open decisions and next evidence
 
-1. Set the retry schedule, timeout, maximum attempts, and process-restart recovery behavior.
-2. Decide whether disabling an endpoint pauses existing scheduled deliveries or only prevents new ones.
-3. Define replay eligibility, same-ID/different-payload handling, and signing header details.
-4. Decide the final header cards and whether “receiver at risk” has a useful, testable rule.
-5. Sketch the selected-event workflow and investigation panel before implementation.
-6. Build and verify the local receiver walkthrough; distinguish tests, local demo, and any eventual submitted repository.
+1. Close the [story-based spec gaps](../spec/spec-design-user-stories.md#4-decisions-needed-before-the-detailed-plan), starting with identity/routing and the delivery lifecycle.
+2. Finalize trust, dashboard/error behavior, and the reproducible local demo in the system spec.
+3. After the [spec readiness gate](../spec/spec-design-user-stories.md#5-spec-readiness-gate) passes, write the detailed development plan. Implementation follows the plan.
 
 ## Evidence and artifacts
 
@@ -47,6 +45,7 @@ This journal records the visible engineering process for the Benji take-home: ev
 - [Benji public site](https://withbenji.com/) — observed public visual language; not proof of the private product's design system.
 - [Benji Pilot dashboard overview](https://docs.withbenji.com/pilot/dashboard) — public description of overview, activity, breakdown, and highlight patterns.
 - `docs/spec/spec-design-webhook-notifications.md` — living specification; current draft, no implementation claim.
+- `docs/spec/spec-design-user-stories.md` — story coverage, traceability, and current spec-readiness gaps; no approval claim.
 - `docs/spec/spec-process-sdd-tdd-iterations.md` — proposed slice order and chosen SDD-TDD cadence; no implementation claim.
 - `docs/spec/spec-architecture-security-and-scale.md` — proposed safeguards, local test strategy, and production gaps; no production-readiness claim.
 
@@ -141,6 +140,14 @@ This journal records the visible engineering process for the Benji take-home: ev
 > We also need to keep in mind: security, scalability (once this goes to production, also how to test locally)
 
 **Assistant (summary)** — Added a security and scalability spec covering endpoint URL safety, signing and secret handling, limits, idempotency, worker isolation, concurrency, backlog signals, and local tests. Marked production authentication, storage, network controls, and capacity targets as gaps requiring their own evidence, then aligned the iteration plan and mirrored this journal to Obsidian.
+
+### Turn 12 — story-based specification readiness
+
+**Dror (verbatim)**
+
+> We shouldn’t jump to implementation before writing a detailed development plan. We cannot write a detailed development plan before finalizing spec. I think a good way to see if our spec is ready is to write some user stories and see if the spec addresses every part of them
+
+**Assistant (summary)** — Wrote ten user stories and a requirement traceability matrix, identifying unresolved behavior and evidence for each. Marked the specification as not yet ready, clarified that the prior iteration table is provisional rather than a detailed development plan, and set the sequence to spec finalization, detailed plan, then small SDD-TDD implementation slices.
 
 ## Maintenance rule
 
