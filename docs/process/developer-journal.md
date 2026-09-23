@@ -31,21 +31,22 @@ This journal records the visible engineering process for the Benji take-home: ev
 | 2026-09-23 | Public repository | Publish the current planning workspace at `https://github.com/drore/benji-webhook-takehome` and continue the exercise there. | Explicit request from Dror; repository created under his authenticated GitHub account. |
 | 2026-09-23 | SDD-TDD development cadence | Specify and test behavior in small iterations, make the smallest version work, then enhance it. Apply this at both whole-system and individual-feature scales. | Explicit preference from Dror. His bridge and marble-statue analogies clarify that the broad working structure comes before detail refinement. |
 | 2026-09-23 | Security and scale | Treat URL safety, signing, idempotency, bounds, crash recovery, and observable backlog as design concerns from their first relevant slice. Keep local verification distinct from production capacity or readiness claims. | Explicit direction from Dror; risks and local test strategy recorded in the security/scale spec. |
-| 2026-09-23 | Spec before plan before code | Use user stories to test specification completeness; finalize product behavior, then write a detailed development plan, then implement in small SDD-TDD slices. The existing iteration table is only a provisional sequence. | Explicit correction from Dror. The story review currently finds coverage of every assignment requirement but unresolved behavior in every story. |
+| 2026-09-23 | Spec before plan before code | Use user stories to test specification completeness; finalize product behavior, then write a detailed development plan, then implement in small SDD-TDD slices. The existing iteration table is only a provisional sequence. | Explicit correction from Dror. The first story review exposed gaps; working resolutions are now drafted for owner review. |
+| 2026-09-23 | Working behavior resolutions | Specify single-customer local scope, immutable endpoint identity with pause-on-disable, conflict for changed event content, bounded retry/replay, an exact HMAC format, useful status summaries, and an independent local receiver setup. | Proposed by the assistant in response to Dror's request to adjust the spec. These are reviewable choices, not yet Dror-approved or implemented. |
 
 ## Open decisions and next evidence
 
-1. Close the [story-based spec gaps](../spec/spec-design-user-stories.md#4-decisions-needed-before-the-detailed-plan), starting with identity/routing and the delivery lifecycle.
-2. Finalize trust, dashboard/error behavior, and the reproducible local demo in the system spec.
-3. After the [spec readiness gate](../spec/spec-design-user-stories.md#5-spec-readiness-gate) passes, write the detailed development plan. Implementation follows the plan.
+1. Review the [material working choices](../spec/spec-design-webhook-notifications.md#11-validation-criteria-and-review-decisions) against the [user stories](../spec/spec-design-user-stories.md), especially endpoint immutability/disable behavior, retry scope, and the local trust boundary.
+2. Accept or revise those choices, then mark the spec final once the [readiness gate](../spec/spec-design-user-stories.md#5-spec-readiness-gate) passes.
+3. Write the detailed development plan before implementation; preserve the small SDD-TDD slices.
 
 ## Evidence and artifacts
 
 - [Benji assignment](https://even-foxglove-53c.notion.site/Sr-Software-Engineer-380b9f151bae81218487d84c42741d17) — primary requirements and one-day limit.
 - [Benji public site](https://withbenji.com/) — observed public visual language; not proof of the private product's design system.
 - [Benji Pilot dashboard overview](https://docs.withbenji.com/pilot/dashboard) — public description of overview, activity, breakdown, and highlight patterns.
-- `docs/spec/spec-design-webhook-notifications.md` — living specification; current draft, no implementation claim.
-- `docs/spec/spec-design-user-stories.md` — story coverage, traceability, and current spec-readiness gaps; no approval claim.
+- `docs/spec/spec-design-webhook-notifications.md` — reviewable behavior draft; no owner approval or implementation claim.
+- `docs/spec/spec-design-user-stories.md` — story coverage, traceability, and working outcomes pending review.
 - `docs/spec/spec-process-sdd-tdd-iterations.md` — proposed slice order and chosen SDD-TDD cadence; no implementation claim.
 - `docs/spec/spec-architecture-security-and-scale.md` — proposed safeguards, local test strategy, and production gaps; no production-readiness claim.
 
@@ -156,6 +157,14 @@ This journal records the visible engineering process for the Benji take-home: ev
 > What do you mean by “resolving”? Adjusting the spec?
 
 **Assistant (summary)** — Clarified that resolving a gap means choosing the intended behavior, updating the system spec and relevant user-story acceptance criteria to state it unambiguously, and checking for contradictions. A detailed development plan and implementation follow only after the spec is ready.
+
+### Turn 14 — adjust the specification
+
+**Dror (verbatim)**
+
+> ok, makes sense. Let's adjust the spec - report to me in short details
+
+**Assistant (summary)** — Converted the story gaps into concrete working behavior for identity, routing, disable, retries, replay, signing, dashboard states, limits, and a separate local receiver. Aligned story traceability and security/scale notes, kept material choices marked for Dror's review, and left the detailed development plan and implementation for after spec finalization.
 
 ## Maintenance rule
 

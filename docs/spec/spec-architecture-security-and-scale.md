@@ -1,6 +1,6 @@
 ---
 title: Security and scalability boundaries for webhook delivery
-version: 0.1-draft
+version: 0.2-review
 date_created: 2026-09-23
 last_updated: 2026-09-23
 owner: Dror Elovits
@@ -9,7 +9,7 @@ tags: [architecture, security, scalability, testing, webhook]
 
 # Introduction
 
-This document records security and scalability requirements that shape the [Benji webhook take-home](https://even-foxglove-53c.notion.site/Sr-Software-Engineer-380b9f151bae81218487d84c42741d17) from the first working slice. It distinguishes what the local demo can verify from what would be needed before a production rollout. Design choices here are proposed until implemented and tested; no production readiness is claimed.
+This document records security and scalability requirements that shape the [Benji webhook take-home](https://even-foxglove-53c.notion.site/Sr-Software-Engineer-380b9f151bae81218487d84c42741d17) from the first working slice. It distinguishes what the local demo can verify from what would be needed before a production rollout. The local behavior in [SPEC-001..011](spec-design-webhook-notifications.md#4-behavior-and-data-contracts-specified-for-review) is specified for owner review; it has not been implemented or tested, and no production readiness is claimed.
 
 ## 1. Purpose and scope
 
@@ -29,10 +29,10 @@ The take-home must run locally without external infrastructure. It should still 
 
 ### Security requirements
 
-- **SEC-001 (Proposed):** Endpoint URL policy is enforced by backend code at registration and immediately before a connection. The local demo permits only explicit loopback destinations. A production policy would require HTTPS and block loopback, private, link-local, metadata, and other non-public targets. It must validate every resolved address and ensure the connection uses a validated address rather than resolving an unchecked one later; redirects are not followed. The local policy must fail closed outside local mode. This addresses the webhook-specific SSRF risk described by [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html).
+- **SEC-001 (Specified for local review; production gap):** Endpoint URL policy is enforced at registration and dispatch. The local demo permits only the configured loopback receiver origin, with differing paths, as in SPEC-003. A production policy would require HTTPS and block loopback, private, link-local, metadata, and other non-public targets. It must validate every resolved address and ensure the connection uses a validated address rather than resolving an unchecked one later; redirects are not followed. The local policy must fail closed outside local mode. This addresses the webhook-specific SSRF risk described by [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html).
 - **SEC-002 (Proposed):** Each endpoint has a distinct signing secret. Each attempt signs a fresh timestamp, stable delivery ID, and the exact raw request body using an unambiguous byte format. The receiver verifies the signature, allowed timestamp window, and delivery-ID idempotency. Reject modified bodies or delivery IDs, stale signatures, and malformed headers. Raw-body integrity is a known requirement of webhook signature verification, as illustrated by [Stripe's documentation](https://docs.stripe.com/webhooks/signature).
 - **SEC-003 (Proposed):** Creation responses show the secret once. Subsequent API reads and logs omit it. A production version needs managed secret protection, rotation, and revocation; these are not implied by the local database.
-- **SEC-004 (Proposed):** Enforce limits for payload size, endpoint count, event creation rate, HTTP timeout, retry count, and stored response excerpt size. Never render payload HTML or include unbounded response bodies in the dashboard.
+- **SEC-004 (Specified for local review):** Enforce the concrete limits in SPEC-002/004/007/011 for endpoint count, payload, event creation rate, HTTP timeout, retry count, and response excerpt. Never render payload HTML or include unbounded response bodies in the dashboard.
 - **SEC-005 (Production gap):** Authenticate operators and authorize every event, endpoint, delivery, and replay action by customer. A single-customer local demo must be labeled as such and must not treat a browser-supplied customer ID as authority.
 - **SEC-006 (Proposed):** Bound and redact sensitive payload/response data in diagnostic logs. Define retention and deletion before production use.
 
@@ -40,20 +40,20 @@ The take-home must run locally without external infrastructure. It should still 
 
 - **SCL-001 (Proposed):** Persist event acceptance and its eligible logical deliveries together before dispatch so a crash cannot leave accepted events without work. Enforce uniqueness in the database, not only in application reads.
 - **SCL-002 (Proposed):** Keep HTTP intake separate from outbound delivery execution. A local worker may share a process, but its interface should allow multiple workers and a different durable store later.
-- **SCL-003 (Proposed):** Bound concurrent attempts globally and per endpoint, retry with finite backoff and jitter, and surface exhausted failures for replay. A slow receiver must not block all other receivers.
-- **SCL-004 (Proposed):** Claim due work so two workers do not intentionally start the same attempt; recover abandoned claims after a crash. Remote processing remains uncertain after a timeout, so stable delivery IDs support receiver idempotency.
+- **SCL-003 (Specified for local review; production extension):** Bound concurrent attempts to four globally and one per endpoint, with finite 2s/5s retries and exhausted failures visible for replay. A slow receiver must not block all other receivers. Add jitter and tune limits for production traffic; deterministic timing serves the local demonstration.
+- **SCL-004 (Specified for local review):** Claim due work with the SPEC-008 lease so two workers do not intentionally start the same attempt; recover abandoned claims after a crash. Remote processing remains uncertain after a timeout or crash, so stable delivery IDs support receiver idempotency.
 - **SCL-005 (Proposed):** Observe intake rate, success/failure counts, retry volume, oldest due delivery, queue lag, attempt latency, and per-endpoint error streaks. These signals should ground dashboard status and production alerts.
 - **SCL-006 (Production gap):** Choose capacity targets, latency objectives, retention, and regional availability before claiming a production architecture. The local SQLite store is useful for a self-contained demo, but SQLite WAL permits one writer at a time and is limited to processes on one host; it is not evidence for a horizontally scaled database deployment. See [SQLite's WAL documentation](https://www.sqlite.org/wal.html).
 
 ## 4. Interfaces and data contracts
 
-Keep a narrow boundary for `EndpointDestinationPolicy`, `DeliveryStore`, and `DeliveryTransport`. The first permits only the local receiver; the production version must enforce public HTTPS destinations and network controls. The store owns atomic event/fan-out writes, unique delivery identity, due-work claims, and attempt history. The transport receives a validated destination and a signed byte payload with fixed timeout and redirect behavior. Exact interfaces are chosen as their slices begin; avoid abstractions that exist only for hypothetical providers.
+Keep a narrow boundary for destination validation, durable delivery storage, and HTTP transport. The first permits only the configured local receiver origin; the production version must enforce public HTTPS destinations and network controls. Storage owns atomic event/fan-out writes, unique delivery identity, due-work claims, and attempt history. Transport receives a validated destination and a signed byte payload with fixed timeout and redirect behavior. The detailed plan will choose exact code interfaces; avoid abstractions that exist only for hypothetical providers.
 
 Every attempt records a stable delivery ID and an attempt ID. A retry or manual replay creates a new signature and timestamp while retaining the delivery ID. Receiver idempotency is keyed by the delivery ID, not by the attempt ID.
 
 ## 5. Acceptance criteria
 
-- **AC-SEC-001:** Local mode accepts only the documented loopback receiver; tests reject unsupported schemes, credentials in URLs, redirects, and forbidden destination classes under the production policy.
+- **AC-SEC-001:** Local mode accepts only documented `/webhooks/` routes on the configured loopback receiver origin; tests reject receiver administration paths, unsupported schemes, credentials in URLs, fragments, other hosts/ports, and redirects. Production destination-policy tests follow when that policy is designed, rather than claiming it exists in the local demo.
 - **AC-SEC-002:** The receiver accepts a valid signed raw body and rejects a changed body or delivery ID, bad signature, stale timestamp, or unknown endpoint secret.
 - **AC-SEC-003:** Secret values are absent from endpoint list/detail responses and ordinary logs after creation.
 - **AC-SCL-001:** Concurrent submission of the same event identity creates one event and at most one delivery per eligible endpoint.
