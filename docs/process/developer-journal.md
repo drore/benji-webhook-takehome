@@ -166,6 +166,14 @@ This journal records the visible engineering process for the Benji take-home: ev
 
 **Assistant (summary)** — Converted the story gaps into concrete working behavior for identity, routing, disable, retries, replay, signing, dashboard states, limits, and a separate local receiver. Aligned story traceability and security/scale notes, kept material choices marked for Dror's review, and left the detailed development plan and implementation for after spec finalization.
 
+### Turn 15 — begin decision review
+
+**Dror (verbatim)**
+
+> Let's review these choices one by one
+
+**Assistant (summary)** — Began a sequential review with endpoint configuration mutability as the first decision. Explained the working choice and tradeoff, and left it pending Dror's answer before reviewing disable behavior or changing the spec.
+
 ## Maintenance rule
 
 For each subsequent substantive turn, append Dror's task message exactly as written and summarize the assistant's completed work in one short paragraph. Update the decision log when a choice is made or revised, label unverified ideas as proposals, keep `docs/spec` aligned, and mirror the journal to the same Obsidian note. Do not rewrite earlier user messages; add a dated correction if a transcription error is found.
