@@ -53,9 +53,10 @@ The assignment prefers Python for the backend and Vue 3 with TypeScript for the 
 - **DEC-002 (Chosen):** Use a familiar operations-dashboard layout and draw visual cues from Benji's public brand. Prefer clear status labels and controls over elaborate animation.
 - **DES-001 (Proposed):** Use a Python API, SQLite for durable local state, a small scheduled delivery worker, and a Vue 3/TypeScript dashboard.
 - **DES-002 (Proposed):** Enforce a database uniqueness constraint on `(event_id, endpoint_id)`. Retries and manual replay append attempts to the existing delivery. HTTP transmission is at least once when failures or uncertain timeouts occur; receiver-side idempotency uses the stable delivery ID. Do not claim exactly-once remote processing.
-- **DES-003 (Proposed):** Sign the timestamp and exact raw request body with an endpoint-specific secret using HMAC-SHA256. Send the timestamp, signature, and stable delivery ID as headers. The demo receiver verifies the signature.
+- **DES-003 (Proposed):** Sign the timestamp, stable delivery ID, and exact raw request body with an endpoint-specific secret using HMAC-SHA256 and an unambiguous byte format. Send the timestamp, signature, and delivery ID as headers. The demo receiver verifies the signature and timestamp.
 - **DES-004 (Proposed):** Show an event's type, ID, time, and a small payload summary on its card; open formatted full JSON on selection. A receiver branch shows a textual state, icon, and status color. A pulse represents an actual HTTP attempt; the logical-delivery branch remains stable across retries.
 - **DES-005 (Proposed):** Poll the delivery API while the dashboard is open to update statuses without manual refresh. Keep event and delivery state authoritative on the server.
+- **DES-006 (Proposed):** Apply the [security and scalability boundaries](spec-architecture-security-and-scale.md) as each slice introduces a new surface. The local demo does not imply production readiness.
 
 ## 4. Interfaces and data contracts
 
@@ -159,3 +160,4 @@ Implementation can begin with the first thin end-to-end slice once that slice's 
 - [Benji public site](https://withbenji.com/)
 - [Benji Pilot dashboard overview](https://docs.withbenji.com/pilot/dashboard)
 - [SDD-TDD iteration plan](spec-process-sdd-tdd-iterations.md)
+- [Security and scalability boundaries](spec-architecture-security-and-scale.md)

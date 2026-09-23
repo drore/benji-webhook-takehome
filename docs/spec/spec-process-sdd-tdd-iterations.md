@@ -59,6 +59,8 @@ Each new contract must state how failure appears to callers and how the dashboar
 
 The table is a proposed ordering, not a demand for seven large releases. If time is tight, reduce optional polish before cutting required reliability, signing, replay, or inspection. Tests accompany each slice; iteration 6 is final verification, not the first testing pass.
 
+The [security and scalability boundaries](spec-architecture-security-and-scale.md) apply at the moment a slice introduces a risk: destination policy with configurable URLs, secret handling and signature verification with identity/trust, and worker concurrency and recovery with retries. The first rope uses one fixed loopback receiver. Local concurrency and load checks show behavior and bottlenecks; they do not establish production capacity.
+
 ## 6. Acceptance criteria
 
 - **AC-001:** After iteration 1, a reviewer can see the same event travel from the dashboard through the backend to a separate local receiver and back to a visible status, using actual HTTP.

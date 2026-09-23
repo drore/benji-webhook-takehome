@@ -30,6 +30,7 @@ This journal records the visible engineering process for the Benji take-home: ev
 | 2026-09-23 | Documentation | Keep the evolving requirements and design in `docs/spec`; keep this process and conversation journal in `docs/process` and Obsidian. | Explicit request from Dror; initial files created. |
 | 2026-09-23 | Public repository | Publish the current planning workspace at `https://github.com/drore/benji-webhook-takehome` and continue the exercise there. | Explicit request from Dror; repository created under his authenticated GitHub account. |
 | 2026-09-23 | SDD-TDD development cadence | Specify and test behavior in small iterations, make the smallest version work, then enhance it. Apply this at both whole-system and individual-feature scales. | Explicit preference from Dror. His bridge and marble-statue analogies clarify that the broad working structure comes before detail refinement. |
+| 2026-09-23 | Security and scale | Treat URL safety, signing, idempotency, bounds, crash recovery, and observable backlog as design concerns from their first relevant slice. Keep local verification distinct from production capacity or readiness claims. | Explicit direction from Dror; risks and local test strategy recorded in the security/scale spec. |
 
 ## Open decisions and next evidence
 
@@ -47,6 +48,7 @@ This journal records the visible engineering process for the Benji take-home: ev
 - [Benji Pilot dashboard overview](https://docs.withbenji.com/pilot/dashboard) — public description of overview, activity, breakdown, and highlight patterns.
 - `docs/spec/spec-design-webhook-notifications.md` — living specification; current draft, no implementation claim.
 - `docs/spec/spec-process-sdd-tdd-iterations.md` — proposed slice order and chosen SDD-TDD cadence; no implementation claim.
+- `docs/spec/spec-architecture-security-and-scale.md` — proposed safeguards, local test strategy, and production gaps; no production-readiness claim.
 
 ## Conversation history
 
@@ -131,6 +133,14 @@ This journal records the visible engineering process for the Benji take-home: ev
 > by "rope" between both sides of the bank I can mean for a small task and it can also mean for the entire task.  another analogy may be of a marble statue - you are not refining the nose before you carved the bigger pieces to have a general structure of it.
 
 **Assistant (summary)** — Updated the specification with nested SDD-TDD loops: first establish a real browser-to-receiver path across the whole product, then add capabilities in small tested slices; apply the same smallest-working-behavior rule within each capability. Documented the proposed iteration sequence, acceptance evidence, and order of refinement, then synchronized the process journal to Obsidian.
+
+### Turn 11 — security and scalability
+
+**Dror (verbatim)**
+
+> We also need to keep in mind: security, scalability (once this goes to production, also how to test locally)
+
+**Assistant (summary)** — Added a security and scalability spec covering endpoint URL safety, signing and secret handling, limits, idempotency, worker isolation, concurrency, backlog signals, and local tests. Marked production authentication, storage, network controls, and capacity targets as gaps requiring their own evidence, then aligned the iteration plan and mirrored this journal to Obsidian.
 
 ## Maintenance rule
 
