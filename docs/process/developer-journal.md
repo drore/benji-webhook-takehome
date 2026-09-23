@@ -29,6 +29,7 @@ This journal records the visible engineering process for the Benji take-home: ev
 | 2026-09-23 | Visual language | Reference Benji's public site: Lexend headings, Inter body copy, navy and vivid purple, white rounded panels, light borders, and generous spacing. Keep operational status colors semantic. | Public site observation only; private Pilot design tokens have not been verified. |
 | 2026-09-23 | Documentation | Keep the evolving requirements and design in `docs/spec`; keep this process and conversation journal in `docs/process` and Obsidian. | Explicit request from Dror; initial files created. |
 | 2026-09-23 | Public repository | Publish the current planning workspace at `https://github.com/drore/benji-webhook-takehome` and continue the exercise there. | Explicit request from Dror; repository created under his authenticated GitHub account. |
+| 2026-09-23 | SDD-TDD development cadence | Specify and test behavior in small iterations, make the smallest version work, then enhance it. Apply this at both whole-system and individual-feature scales. | Explicit preference from Dror. His bridge and marble-statue analogies clarify that the broad working structure comes before detail refinement. |
 
 ## Open decisions and next evidence
 
@@ -45,6 +46,7 @@ This journal records the visible engineering process for the Benji take-home: ev
 - [Benji public site](https://withbenji.com/) — observed public visual language; not proof of the private product's design system.
 - [Benji Pilot dashboard overview](https://docs.withbenji.com/pilot/dashboard) — public description of overview, activity, breakdown, and highlight patterns.
 - `docs/spec/spec-design-webhook-notifications.md` — living specification; current draft, no implementation claim.
+- `docs/spec/spec-process-sdd-tdd-iterations.md` — proposed slice order and chosen SDD-TDD cadence; no implementation claim.
 
 ## Conversation history
 
@@ -113,6 +115,22 @@ This journal records the visible engineering process for the Benji take-home: ev
 > why is this taking so long?
 
 **Assistant (summary)** — Explained that public-file and GitHub preflight had taken too long and that the push was still pending, then continued directly with repository creation and publication.
+
+### Turn 9 — development approach
+
+**Dror (verbatim)**
+
+> My preferred way to taking assignments is SDD-TDD. Also - when building, I rather build in small parts from  - while first making stuff work and only after enhancing. The analogy I use is of building a bridge between two banks. First we just throw a rope so we can go from side to side, and only then start beautifying and building our golden bridge. Is the approach clear?Also - we should plan and later work in small iterations
+
+**Assistant (summary)** — Confirmed a spec-then-test-then-implementation cadence and began planning a thin path through the system. No documentation change was completed before Dror clarified that the same principle applies at multiple scales.
+
+### Turn 10 — clarify the scale of each rope
+
+**Dror (verbatim)**
+
+> by "rope" between both sides of the bank I can mean for a small task and it can also mean for the entire task.  another analogy may be of a marble statue - you are not refining the nose before you carved the bigger pieces to have a general structure of it.
+
+**Assistant (summary)** — Updated the specification with nested SDD-TDD loops: first establish a real browser-to-receiver path across the whole product, then add capabilities in small tested slices; apply the same smallest-working-behavior rule within each capability. Documented the proposed iteration sequence, acceptance evidence, and order of refinement, then synchronized the process journal to Obsidian.
 
 ## Maintenance rule
 

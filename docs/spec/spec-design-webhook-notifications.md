@@ -17,7 +17,7 @@ This is the living specification for the [Benji senior software engineer take-ho
 
 Build a local, one-day fullstack demonstration in which a customer registers multiple webhook endpoints, selects event types, triggers events, and inspects reliable, authenticated delivery. The audience is Benji's reviewers and an operator investigating delivery issues.
 
-The assignment prefers Python for the backend and Vue 3 with TypeScript for the frontend. Dror is comfortable with that stack (**Chosen**). The solution must run locally without external infrastructure (**Required**). A GitHub repository containing code, plan, tests, README, and an AI-usage note is the requested submission (**Required**); publishing that repository is outside the scope of this draft.
+The assignment prefers Python for the backend and Vue 3 with TypeScript for the frontend. Dror is comfortable with that stack (**Chosen**). The solution must run locally without external infrastructure (**Required**). The [public repository](https://github.com/drore/benji-webhook-takehome) currently contains planning documents; code, plan, tests, run instructions, and an AI-usage note remain required for submission. Work follows the [SDD-TDD iteration plan](spec-process-sdd-tdd-iterations.md) (**Chosen process**).
 
 ## 2. Definitions
 
@@ -142,7 +142,7 @@ Cases to settle or verify: same event ID with different payload; disabled endpoi
 
 ## 11. Validation criteria and open decisions
 
-The specification is ready for implementation once the API contracts, retry policy, disabled-endpoint behavior, replay rules, signing header format, and demo receiver setup are chosen. The implementation is ready for submission only after the acceptance criteria are verified against the final local code and the required plan, README, tests, and AI-usage note are present.
+Implementation can begin with the first thin end-to-end slice once that slice's contracts and acceptance evidence are specified. Later decisions are resolved before the slice that needs them; they do not block the whole-system rope. The implementation is ready for submission only after the acceptance criteria are verified against the final local code and the required plan, README, tests, and AI-usage note are present.
 
 | ID | Decision needed | Current position |
 | --- | --- | --- |
@@ -158,3 +158,4 @@ The specification is ready for implementation once the API contracts, retry poli
 - [Assignment](https://even-foxglove-53c.notion.site/Sr-Software-Engineer-380b9f151bae81218487d84c42741d17)
 - [Benji public site](https://withbenji.com/)
 - [Benji Pilot dashboard overview](https://docs.withbenji.com/pilot/dashboard)
+- [SDD-TDD iteration plan](spec-process-sdd-tdd-iterations.md)
