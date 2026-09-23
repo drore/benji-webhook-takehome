@@ -33,13 +33,14 @@ This journal records the visible engineering process for the Benji take-home: ev
 | 2026-09-23 | Security and scale | Treat URL safety, signing, idempotency, bounds, crash recovery, and observable backlog as design concerns from their first relevant slice. Keep local verification distinct from production capacity or readiness claims. | Explicit direction from Dror; risks and local test strategy recorded in the security/scale spec. |
 | 2026-09-23 | Spec before plan before code | Use user stories to test specification completeness; finalize product behavior, then write a detailed development plan, then implement in small SDD-TDD slices. The existing iteration table is only a provisional sequence. | Explicit correction from Dror. The first story review exposed gaps; working resolutions are now drafted for owner review. |
 | 2026-09-23 | Working behavior resolutions | Specify single-customer local scope, immutable endpoint identity with pause-on-disable, conflict for changed event content, bounded retry/replay, an exact HMAC format, useful status summaries, and an independent local receiver setup. | Proposed by the assistant in response to Dror's request to adjust the spec. These are reviewable choices, not yet Dror-approved or implemented. |
-| 2026-09-23 | Workflow and endpoint versions | Use a named workflow for a stable business purpose; keep endpoint URL, event types, and secret immutable across versions. One version per workflow is active for new events. A version change routes future events to B while A's accepted deliveries stay with A. Preserve version lineage and separate histories for later comparison. | Dror accepted immutable webhook subscriptions and proposed the workflow parent and one-active-version rule. The cutover/drain interpretation was affirmed by his “Yes”; explicit Disable remains a separate open decision. |
+| 2026-09-23 | Workflow and endpoint versions | Use a named workflow for a stable business purpose; keep endpoint URL, event types, and secret immutable across versions. One version per workflow is active for new events under a provisional rule. A version change routes future events to B while A's accepted deliveries stay with A. Preserve version lineage and separate histories for later comparison. | Dror accepted immutable webhook subscriptions and proposed the workflow parent and one-active-version rule, then asked to revisit that cardinality before spec finalization. |
+| 2026-09-23 | Explicit Disable | Distinguish an operator stop action from a version cutover. Disable clears active routing if needed, pauses queued/retrying work, blocks replay, and lets an in-flight request finish; Resume restores due work without activating the version. | Dror accepted the proposed stop behavior. The spec and acceptance criteria now state its effect on outstanding work and replay. |
 
 ## Open decisions and next evidence
 
-1. Decide the meaning of explicit Disable, separate from the agreed workflow version cutover: does it pause accepted work or only stop new routing, and does it block replay?
-2. Accept or revise those choices, then mark the spec final once the [readiness gate](../spec/spec-design-user-stories.md#5-spec-readiness-gate) passes.
-3. Write the detailed development plan before implementation; preserve the small SDD-TDD slices.
+1. Review the next material choice, event identity and deduplication, one decision at a time.
+2. Revisit the one-active-endpoint-per-workflow policy before spec finalization, as Dror requested.
+3. Accept or revise the remaining choices, pass the [readiness gate](../spec/spec-design-user-stories.md#5-spec-readiness-gate), and only then write the detailed development plan before implementation.
 
 ## Evidence and artifacts
 
@@ -206,6 +207,14 @@ This journal records the visible engineering process for the Benji take-home: ev
 > Yes so each workflow (let’s call those workflows unless you have a better idea) has only one active endpoint at a time
 
 **Assistant (summary)** — Adopted “workflow” for the stable parent and distinguished it from the event delivery view. Updated the spec and user stories so activation selects one endpoint version for future events, preserves old deliveries on their original version, and keeps both histories linked for comparison. Separated explicit Disable as the next decision because its effect on queued work and replay differs from a version cutover.
+
+### Turn 20 — explicit Disable and provisional cardinality
+
+**Dror (verbatim)**
+
+> Yes. I think that we will need to look closer at the one-endpoint policy later but for now it’s ok
+
+**Assistant (summary)** — Recorded explicit Disable as a deliberate stop that clears new routing, pauses outstanding attempts, and blocks replay until resumed, while a normal version cutover lets old work drain. Marked the one-active-endpoint rule as provisional for a separate review before spec finalization and aligned the stories and iteration outline.
 
 ## Maintenance rule
 
