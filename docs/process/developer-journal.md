@@ -35,10 +35,11 @@ This journal records the visible engineering process for the Benji take-home: ev
 | 2026-09-23 | Working behavior resolutions | Specify single-customer local scope, immutable endpoint identity with pause-on-disable, conflict for changed event content, bounded retry/replay, an exact HMAC format, useful status summaries, and an independent local receiver setup. | Proposed by the assistant in response to Dror's request to adjust the spec. These are reviewable choices, not yet Dror-approved or implemented. |
 | 2026-09-23 | Workflow and endpoint versions | Use a named workflow for a stable business purpose; keep endpoint URL, event types, and secret immutable across versions. One version per workflow is active for new events under a provisional rule. A version change routes future events to B while A's accepted deliveries stay with A. Preserve version lineage and separate histories for later comparison. | Dror accepted immutable webhook subscriptions and proposed the workflow parent and one-active-version rule, then asked to revisit that cardinality before spec finalization. |
 | 2026-09-23 | Explicit Disable | Distinguish an operator stop action from a version cutover. Disable clears active routing if needed, pauses queued/retrying work, blocks replay, and lets an in-flight request finish; Resume restores due work without activating the version. | Dror accepted the proposed stop behavior. The spec and acceptance criteria now state its effect on outstanding work and replay. |
+| 2026-09-23 | Queue event identity | Generate a unique server event ID when a new event is accepted into the durable local queue. Separately propose a sender idempotency key: same key/content returns the original ID, changed content conflicts, and a fresh key creates a distinct event. | Server-generated queue ID is Dror's chosen direction. Submission-key semantics are a working choice for his review, not yet approved. |
 
 ## Open decisions and next evidence
 
-1. Review the next material choice, event identity and deduplication, one decision at a time.
+1. Confirm or revise the proposed submission-key semantics that accompany Dror's server-generated queue ID, one decision at a time.
 2. Revisit the one-active-endpoint-per-workflow policy before spec finalization, as Dror requested.
 3. Accept or revise the remaining choices, pass the [readiness gate](../spec/spec-design-user-stories.md#5-spec-readiness-gate), and only then write the detailed development plan before implementation.
 
@@ -215,6 +216,14 @@ This journal records the visible engineering process for the Benji take-home: ev
 > Yes. I think that we will need to look closer at the one-endpoint policy later but for now it’s ok
 
 **Assistant (summary)** — Recorded explicit Disable as a deliberate stop that clears new routing, pauses outstanding attempts, and blocks replay until resumed, while a normal version cutover lets old work drain. Marked the one-active-endpoint rule as provisional for a separate review before spec finalization and aligned the stories and iteration outline.
+
+### Turn 21 — queue-generated event ID
+
+**Dror (verbatim)**
+
+> Let’s imitate a queue so the event would get a unique identifier upon entering the “queue”
+
+**Assistant (summary)** — Updated the spec and stories so the server generates a unique event ID at durable queue acceptance. Proposed a separate sender idempotency key for safe submission retries: the same key and content returns the original queue ID, while a new key can create a distinct event with identical content. Kept key semantics marked for Dror's review and aligned the provisional iteration and scale notes.
 
 ## Maintenance rule
 

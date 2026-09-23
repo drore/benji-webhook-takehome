@@ -38,7 +38,7 @@ The take-home must run locally without external infrastructure. It should still 
 
 ### Reliability and scalability requirements
 
-- **SCL-001 (Proposed):** Persist event acceptance and its eligible logical deliveries together before dispatch so a crash cannot leave accepted events without work. Enforce uniqueness in the database, not only in application reads.
+- **SCL-001 (Proposed):** Generate a server event ID and persist event acceptance and its eligible logical deliveries together before dispatch; this durable local database work list acts as the queue. A crash cannot leave accepted events without work. Enforce `(customer, idempotency key)` and `(event_id, endpoint_id)` uniqueness in the database, not only in application reads.
 - **SCL-002 (Proposed):** Keep HTTP intake separate from outbound delivery execution. A local worker may share a process, but its interface should allow multiple workers and a different durable store later.
 - **SCL-003 (Specified for local review; production extension):** Bound concurrent attempts to four globally and one per endpoint, with finite 2s/5s retries and exhausted failures visible for replay. A slow receiver must not block all other receivers. Add jitter and tune limits for production traffic; deterministic timing serves the local demonstration.
 - **SCL-004 (Specified for local review):** Claim due work with the SPEC-008 lease so two workers do not intentionally start the same attempt; recover abandoned claims after a crash. Remote processing remains uncertain after a timeout or crash, so stable delivery IDs support receiver idempotency.
@@ -56,7 +56,7 @@ Every attempt records a stable delivery ID and an attempt ID. A retry or manual 
 - **AC-SEC-001:** Local mode accepts only documented `/webhooks/` routes on the configured loopback receiver origin; tests reject receiver administration paths, unsupported schemes, credentials in URLs, fragments, other hosts/ports, and redirects. Production destination-policy tests follow when that policy is designed, rather than claiming it exists in the local demo.
 - **AC-SEC-002:** The receiver accepts a valid signed raw body and rejects a changed body or delivery ID, bad signature, stale timestamp, or unknown endpoint secret.
 - **AC-SEC-003:** Secret values are absent from endpoint list/detail responses and ordinary logs after creation.
-- **AC-SCL-001:** Concurrent submission of the same event identity creates one event and at most one delivery per eligible workflow's active endpoint version. A concurrent activation cutover assigns a new event to A or B, never both, while A's already accepted deliveries continue to A.
+- **AC-SCL-001:** Concurrent submission of the same idempotency key and content returns one server-generated event ID and creates at most one delivery per eligible workflow's active endpoint version. A concurrent activation cutover assigns a new event to A or B, never both, while A's already accepted deliveries continue to A.
 - **AC-SCL-002:** A slow or failing receiver does not prevent another endpoint's delivery from progressing within the configured concurrency limit.
 - **AC-SCL-003:** Restarting a worker after a claimed or timed-out attempt preserves the delivery and attempt history and eventually makes due work eligible again.
 - **AC-SCL-004:** A local load exercise reports actual event count, fan-out, concurrency, queue lag, latency, failures, and machine/runtime settings; it makes no extrapolated production throughput claim.

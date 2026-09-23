@@ -9,7 +9,7 @@ tags: [design, user-stories, traceability, readiness, take-home]
 
 # User stories and specification readiness
 
-These stories test whether the [system specification](spec-design-webhook-notifications.md) is precise enough to plan and build the Benji exercise. **Status: workflow grouping, cutover, and explicit Disable have agreed behavior; the one-active-version policy is provisional and other working choices await review.** No implementation or detailed plan has begun.
+These stories test whether the [system specification](spec-design-webhook-notifications.md) is precise enough to plan and build the Benji exercise. **Status: workflow grouping, cutover, explicit Disable, and server-generated queue event IDs have agreed direction; the one-active-version policy is provisional and submission-key behavior and other working choices await review.** No implementation or detailed plan has begun.
 
 ## 1. Actors and scope
 
@@ -20,8 +20,8 @@ The local exercise has three actors: a **customer/operator** who configures name
 | Story | Observable outcome | Spec coverage and testable edge outcome |
 | --- | --- | --- |
 | **US-01 Configure receivers** | As an operator, I create a named workflow, add immutable endpoint versions with URLs and event-type subscriptions, and activate one version for new events. A new secret appears once; later reads omit it. I can see which version replaced which and can explicitly disable or resume a version. | **Agreed, cardinality provisional:** SPEC-002/003/005/006; AC-007/008/015/016. Cutover drains accepted work; Disable pauses it and blocks replay. Revisit one-active policy before finalization. |
-| **US-02 Submit an event** | As an operator, I enter an event ID, type, and JSON payload and see accepted or deduplicated feedback. Submitting the same ID and content again creates no new delivery. | **Specified for review:** SPEC-004/005/011; AC-002/009. Changed type/value conflicts; no-match event persists; input is bounded. |
-| **US-03 Route once per endpoint** | As an operator, I see one logical delivery to each eligible workflow's active endpoint version. Concurrent duplicate submissions, retries, and replay never create a second event–endpoint delivery; attempts belong to the existing delivery. | **Partly agreed:** SPEC-001/002/005/009; AC-001/008/010. Cutover changes future routing; A's accepted work stays assigned to A. |
+| **US-02 Submit an event** | As an operator, I submit a key, type, and JSON payload. The server returns a queue event ID when it accepts the event. Retrying the same key and content returns that ID without new deliveries; a fresh key creates a distinct event even when the content is identical. | **Queue ID chosen; key behavior for review:** SPEC-004/005/011; AC-002/009. Changed type/value under one key conflicts; no-match event persists with an ID; input is bounded. |
+| **US-03 Route once per endpoint** | As an operator, I see one logical delivery to each eligible workflow's active endpoint version. Concurrent submissions with the same key, retries, and replay never create a second event–endpoint delivery; attempts belong to the existing delivery. | **Partly agreed:** SPEC-001/002/005/009; AC-001/008/010. Cutover changes future routing; A's accepted work stays assigned to A. |
 | **US-04 Verify a request** | As a receiver, I verify the endpoint signature and reject a changed body, bad signature, or stale timestamp. A stable delivery ID lets me suppress repeated side effects after uncertain timeouts. | **Specified for review:** SPEC-010; AC-005/014. Header names, signed bytes, 300-second window, and receiver secret handoff are explicit. |
 | **US-05 Recover automatically** | As an operator, I see a failed request and later retry on the same delivery. A fail-once receiver can succeed; an always-failing receiver reaches a terminal state. A slow receiver does not block every other delivery. | **Specified for review:** SPEC-007/008; AC-003/011. Three-attempt cycle, timeout, classifier, concurrency, and lease recovery are defined. |
 | **US-06 Investigate and replay** | As an operator, I inspect a failed delivery's payload and full attempt history, replay it, and see a new attempt without losing prior evidence. Invalid replay is rejected in the API and unavailable in the UI. | **Specified for review:** SPEC-006/009, dashboard action states; AC-004/012/016. Cutover alone does not block replay to A; explicit Disable does until resumed. |
@@ -49,8 +49,9 @@ The local exercise has three actors: a **customer/operator** who configures name
 | CON-001 local and one-day scope | US-09, US-10 | Specified for review: local/demo and production boundary |
 | CON-002 plan, tests, README, AI trail | US-09, US-10 | Specified for review: deliverable criteria; artifacts still pending |
 | USR-001 named workflow and version lineage | US-01, US-11 | Agreed; one-active rule provisional: DEC-003, SPEC-002/005, AC-015 |
+| USR-002 server-generated queue event ID | US-02, US-03 | Chosen direction: SPEC-004/005, AC-002/010; submission-key behavior for review |
 
-**Coverage result:** every assignment requirement and the workflow/version relationship have a story. **Readiness result:** explicit Disable and paused-replay outcomes are now specified. The one-active-version policy still needs a closer review, along with the other working choices. The behavior draft is not final; tests and runtime evidence remain future work.
+**Coverage result:** every assignment requirement and the workflow/version relationship have a story. **Readiness result:** explicit Disable and paused-replay outcomes are specified, and server-generated queue IDs are traced to US-02. The idempotency-key behavior and one-active-version policy still need review, along with the other working choices. The behavior draft is not final; tests and runtime evidence remain future work.
 
 ## 4. Decisions for owner review before the detailed plan
 
