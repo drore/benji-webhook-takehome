@@ -174,6 +174,14 @@ This journal records the visible engineering process for the Benji take-home: ev
 
 **Assistant (summary)** — Began a sequential review with endpoint configuration mutability as the first decision. Explained the working choice and tradeoff, and left it pending Dror's answer before reviewing disable behavior or changing the spec.
 
+### Turn 16 — queued-delivery implication
+
+**Dror (verbatim)**
+
+> The issue here is with queued events?
+
+**Assistant (summary)** — Clarified that the ambiguity concerns queued and retrying deliveries, plus in-progress attempts and historical interpretation: changing a URL or subscription after event acceptance raises the question of which receiver and configuration the existing delivery should use. Kept endpoint mutability undecided pending Dror's preference.
+
 ## Maintenance rule
 
 For each subsequent substantive turn, append Dror's task message exactly as written and summarize the assistant's completed work in one short paragraph. Update the decision log when a choice is made or revised, label unverified ideas as proposals, keep `docs/spec` aligned, and mirror the journal to the same Obsidian note. Do not rewrite earlier user messages; add a dated correction if a transcription error is found.
