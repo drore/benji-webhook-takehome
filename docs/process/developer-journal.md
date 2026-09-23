@@ -33,10 +33,11 @@ This journal records the visible engineering process for the Benji take-home: ev
 | 2026-09-23 | Security and scale | Treat URL safety, signing, idempotency, bounds, crash recovery, and observable backlog as design concerns from their first relevant slice. Keep local verification distinct from production capacity or readiness claims. | Explicit direction from Dror; risks and local test strategy recorded in the security/scale spec. |
 | 2026-09-23 | Spec before plan before code | Use user stories to test specification completeness; finalize product behavior, then write a detailed development plan, then implement in small SDD-TDD slices. The existing iteration table is only a provisional sequence. | Explicit correction from Dror. The first story review exposed gaps; working resolutions are now drafted for owner review. |
 | 2026-09-23 | Working behavior resolutions | Specify single-customer local scope, immutable endpoint identity with pause-on-disable, conflict for changed event content, bounded retry/replay, an exact HMAC format, useful status summaries, and an independent local receiver setup. | Proposed by the assistant in response to Dror's request to adjust the spec. These are reviewable choices, not yet Dror-approved or implemented. |
+| 2026-09-23 | Workflow and endpoint versions | Use a named workflow for a stable business purpose; keep endpoint URL, event types, and secret immutable across versions. One version per workflow is active for new events. A version change routes future events to B while A's accepted deliveries stay with A. Preserve version lineage and separate histories for later comparison. | Dror accepted immutable webhook subscriptions and proposed the workflow parent and one-active-version rule. The cutover/drain interpretation was affirmed by his “Yes”; explicit Disable remains a separate open decision. |
 
 ## Open decisions and next evidence
 
-1. Review the [material working choices](../spec/spec-design-webhook-notifications.md#11-validation-criteria-and-review-decisions) against the [user stories](../spec/spec-design-user-stories.md), especially endpoint immutability/disable behavior, retry scope, and the local trust boundary.
+1. Decide the meaning of explicit Disable, separate from the agreed workflow version cutover: does it pause accepted work or only stop new routing, and does it block replay?
 2. Accept or revise those choices, then mark the spec final once the [readiness gate](../spec/spec-design-user-stories.md#5-spec-readiness-gate) passes.
 3. Write the detailed development plan before implementation; preserve the small SDD-TDD slices.
 
@@ -181,6 +182,30 @@ This journal records the visible engineering process for the Benji take-home: ev
 > The issue here is with queued events?
 
 **Assistant (summary)** — Clarified that the ambiguity concerns queued and retrying deliveries, plus in-progress attempts and historical interpretation: changing a URL or subscription after event acceptance raises the question of which receiver and configuration the existing delivery should use. Kept endpoint mutability undecided pending Dror's preference.
+
+### Turn 17 — immutable versions and replacement relationship
+
+**Dror (verbatim)**
+
+> Ok, immutable webhook subs are fine with me, as long as we can say that now obsolete sub A is related to the newer sub B that replaced it, for comparison, evals etc.
+
+**Assistant (summary)** — Accepted immutable endpoint configuration with a retained replacement relationship, then began updating the draft with predecessor lineage and separate delivery histories. Left the extent of comparison UI and the behavior of old queued work for discussion.
+
+### Turn 18 — stable business purpose
+
+**Dror (verbatim)**
+
+> That is, maybe a webhook / endpoint is linked to a higher level entity - for example "Updating loyalty points - company A"
+
+**Assistant (summary)** — Proposed a stable, named parent for the business purpose, with immutable endpoint versions beneath it. Noted that sending the same live loyalty-points event to both versions could duplicate side effects; recommended one active version and an explicit cutover rule instead of simultaneous live routing.
+
+### Turn 19 — one active endpoint per workflow
+
+**Dror (verbatim)**
+
+> Yes so each workflow (let’s call those workflows unless you have a better idea) has only one active endpoint at a time
+
+**Assistant (summary)** — Adopted “workflow” for the stable parent and distinguished it from the event delivery view. Updated the spec and user stories so activation selects one endpoint version for future events, preserves old deliveries on their original version, and keeps both histories linked for comparison. Separated explicit Disable as the next decision because its effect on queued work and replay differs from a version cutover.
 
 ## Maintenance rule
 
