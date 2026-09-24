@@ -1,7 +1,7 @@
 ---
 title: Benji webhook take-home developer journal
 date_created: 2026-09-23
-last_updated: 2026-09-23
+last_updated: 2026-09-24
 status: active
 tags: [career, benji, take-home, engineering-process]
 ---
@@ -36,6 +36,7 @@ This journal records the visible engineering process for the Benji take-home: ev
 | 2026-09-23 | Workflow and endpoint versions | Use a named workflow for a stable business purpose; keep endpoint URL, event types, and secret immutable across versions. One version per workflow is active for new events under a provisional rule. A version change routes future events to B while A's accepted deliveries stay with A. Preserve version lineage and separate histories for later comparison. | Dror accepted immutable webhook subscriptions and proposed the workflow parent and one-active-version rule, then asked to revisit that cardinality before spec finalization. |
 | 2026-09-23 | Explicit Disable | Distinguish an operator stop action from a version cutover. Disable clears active routing if needed, pauses queued/retrying work, blocks replay, and lets an in-flight request finish; Resume restores due work without activating the version. | Dror accepted the proposed stop behavior. The spec and acceptance criteria now state its effect on outstanding work and replay. |
 | 2026-09-23 | Queue event identity | Generate a unique server event ID when a new event is accepted into the durable local queue. Separately propose a sender idempotency key: same key/content returns the original ID, changed content conflicts, and a fresh key creates a distinct event. | Server-generated queue ID is Dror's chosen direction. Submission-key semantics are a working choice for his review, not yet approved. |
+| 2026-09-24 | Submission resend versus delivery retry | Clarify that the proposed key addresses a dashboard/API submission whose response is unknown: manually resending the same request can recover its original event ID. The worker's later HTTP delivery retry uses the existing event and delivery IDs. | Dror asked what “retrying” means here. This clarifies the proposal without treating the key design as approved. |
 
 ## Open decisions and next evidence
 
@@ -224,6 +225,14 @@ This journal records the visible engineering process for the Benji take-home: ev
 > Let’s imitate a queue so the event would get a unique identifier upon entering the “queue”
 
 **Assistant (summary)** — Updated the spec and stories so the server generates a unique event ID at durable queue acceptance. Proposed a separate sender idempotency key for safe submission retries: the same key and content returns the original queue ID, while a new key can create a distinct event with identical content. Kept key semantics marked for Dror's review and aligned the provisional iteration and scale notes.
+
+### Turn 22 — meaning of retrying a submission
+
+**Dror (verbatim)**
+
+> "Retrying with the same key and content" - Retrying how?
+
+**Assistant (summary)** — Clarified that this means sending the event-submission request again after its response is uncertain, such as a timeout after queue acceptance. The same key lets the client recover the original event ID; this is separate from automatic worker retries to a receiver, which add HTTP attempts to an existing delivery. Updated the spec and story language to distinguish these paths; the idempotency-key choice remains under review.
 
 ## Maintenance rule
 

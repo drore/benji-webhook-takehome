@@ -2,7 +2,7 @@
 title: User stories and specification readiness
 version: 0.2-review
 date_created: 2026-09-23
-last_updated: 2026-09-23
+last_updated: 2026-09-24
 owner: Dror Elovits
 tags: [design, user-stories, traceability, readiness, take-home]
 ---
@@ -20,7 +20,7 @@ The local exercise has three actors: a **customer/operator** who configures name
 | Story | Observable outcome | Spec coverage and testable edge outcome |
 | --- | --- | --- |
 | **US-01 Configure receivers** | As an operator, I create a named workflow, add immutable endpoint versions with URLs and event-type subscriptions, and activate one version for new events. A new secret appears once; later reads omit it. I can see which version replaced which and can explicitly disable or resume a version. | **Agreed, cardinality provisional:** SPEC-002/003/005/006; AC-007/008/015/016. Cutover drains accepted work; Disable pauses it and blocks replay. Revisit one-active policy before finalization. |
-| **US-02 Submit an event** | As an operator, I submit a key, type, and JSON payload. The server returns a queue event ID when it accepts the event. Retrying the same key and content returns that ID without new deliveries; a fresh key creates a distinct event even when the content is identical. | **Queue ID chosen; key behavior for review:** SPEC-004/005/011; AC-002/009. Changed type/value under one key conflicts; no-match event persists with an ID; input is bounded. |
+| **US-02 Submit an event** | As an operator, I submit a key, type, and JSON payload. The server returns a queue event ID when it accepts the event. If the submission response is lost or times out, I can resend that request with the same key and content; it returns the original ID without new deliveries. A fresh key creates a distinct event even when the content is identical. | **Queue ID chosen; key behavior for review:** SPEC-004/005/011; AC-002/009. This submission resend is separate from worker delivery retries. Changed type/value under one key conflicts; no-match event persists with an ID; input is bounded. |
 | **US-03 Route once per endpoint** | As an operator, I see one logical delivery to each eligible workflow's active endpoint version. Concurrent submissions with the same key, retries, and replay never create a second event–endpoint delivery; attempts belong to the existing delivery. | **Partly agreed:** SPEC-001/002/005/009; AC-001/008/010. Cutover changes future routing; A's accepted work stays assigned to A. |
 | **US-04 Verify a request** | As a receiver, I verify the endpoint signature and reject a changed body, bad signature, or stale timestamp. A stable delivery ID lets me suppress repeated side effects after uncertain timeouts. | **Specified for review:** SPEC-010; AC-005/014. Header names, signed bytes, 300-second window, and receiver secret handoff are explicit. |
 | **US-05 Recover automatically** | As an operator, I see a failed request and later retry on the same delivery. A fail-once receiver can succeed; an always-failing receiver reaches a terminal state. A slow receiver does not block every other delivery. | **Specified for review:** SPEC-007/008; AC-003/011. Three-attempt cycle, timeout, classifier, concurrency, and lease recovery are defined. |

@@ -2,7 +2,7 @@
 title: Webhook notification system and operations dashboard
 version: 0.2-review
 date_created: 2026-09-23
-last_updated: 2026-09-23
+last_updated: 2026-09-24
 owner: Dror Elovits
 tags: [design, architecture, webhook, dashboard, take-home]
 ---
@@ -24,7 +24,7 @@ The assignment prefers Python for the backend and Vue 3 with TypeScript for the 
 | Term | Meaning |
 | --- | --- |
 | Event | An accepted occurrence with a server-generated queue event ID, type, payload, and creation time. |
-| Submission key | A sender-supplied idempotency key identifying one intended event submission across retries. It is distinct from the server-generated event ID. |
+| Submission key | A sender-supplied idempotency key identifying one intended event submission if the dashboard or API client sends that submission request again after an uncertain response. It is distinct from the server-generated event ID and from retries of HTTP delivery to receivers. |
 | Workflow | A stable, customer-owned business purpose such as “Updating loyalty points — Company A.” It groups immutable endpoint versions and selects at most one version for new events. |
 | Endpoint version | A workflow-owned URL, event-type subscription set, and signing secret that do not change after creation. It retains its own delivery history. |
 | Active endpoint | The one endpoint version a workflow selects for **new** matching events; this does not redirect deliveries already accepted for older versions. |
@@ -85,6 +85,8 @@ These are product and externally observable contracts. The later development pla
 | **SPEC-010 Signed request** | Each endpoint has a cryptographically random 32-byte secret shown once as `whsec_` plus unpadded base64url. For each attempt, send the stored event JSON bytes as the body and headers `X-Webhook-Endpoint-Id`, `X-Webhook-Delivery-Id`, `X-Webhook-Timestamp` (Unix seconds), and `X-Webhook-Signature` (`v1=` plus lowercase hex HMAC-SHA256). The exact signed bytes are UTF-8 `v1\n{timestamp}\n{endpoint_id}\n{delivery_id}\n` followed by the raw body bytes. Generated endpoint/delivery IDs have an unambiguous ASCII format. The receiver uses constant-time signature comparison, rejects malformed headers and timestamps outside ±300 seconds, and deduplicates side effects by delivery ID; replay uses fresh timestamp/signature but the same delivery ID. |
 | **SPEC-011 Limits and errors** | Local intake permits at most 60 new events per rolling minute for the fixed customer; exceeding it returns `429 rate_limited`. Invalid URL/key/type/JSON/size returns `400 validation_error`. A reused idempotency key with changed content, unavailable replay, or attempt to activate a paused version returns 409 with `idempotency_conflict`, `replay_unavailable`, or `endpoint_paused` respectively. Unexpected server errors use `500 internal_error` without secrets or payloads. API errors share `{code, message, details?}`; the frontend distinguishes these from transport failures and never invents delivery success. |
 
+**Two retry paths:** A **submission resend** repeats the dashboard/API request to create an event when its response is unknown (for example, the connection drops after the server commits). The sender uses the same key, type, and payload to learn whether the event already entered the queue; this proposal does not require an automatic browser resend. A **delivery retry** happens later inside the worker after an outbound HTTP attempt fails. It keeps the same event ID and delivery ID, adds an attempt, and never resubmits the event for queue acceptance. Manual replay is another delivery cycle on that same delivery.
+
 **Entity minimums:** Event stores server-generated ID, fixed customer, unique sender idempotency key, type, canonical JSON bytes, creation time. Workflow stores ID, customer, name, and nullable active endpoint ID. Endpoint version stores ID, workflow ID, immutable URL/type set/secret, optional predecessor ID, and dispatch-paused flag. Delivery stores ID, event/endpoint IDs, status, due time, attempt cycle, and claim lease. Attempt stores ID, delivery ID, monotonic number, timing, outcome, and bounded response excerpt. Persist the signing secret locally but never return it after creation; production storage and rotation require a separate design.
 
 **Required API capabilities:** create/list workflows; create/list endpoint versions with workflow and predecessor/successor links; activate a workflow's unpaused endpoint version; disable and resume a version's dispatch; submit/list/read events with the server-generated event ID and deduplication result; read delivery and attempts; replay failed delivery. Creation and deduplication use `201` and `200` respectively. The dashboard reads authoritative state; it does not infer persistence from a successful click.
@@ -116,7 +118,7 @@ These are product and externally observable contracts. The later development pla
 
 **Live and failure behavior:** Poll authoritative status every two seconds while the dashboard tab is visible. After a polling failure, retain the last known state, show a `Status may be stale` banner and last successful update time, and retry automatically on the next interval. Never animate an attempt that was not observed from server state. For an accepted no-match event, show the event card and a `No receivers matched` explanation. With many branches, use a vertically scrollable receiver list; selecting a branch preserves context in the investigation panel. Payload cards show type/ID/time and a short escaped JSON preview; full formatted JSON is available on selection, never rendered as HTML.
 
-**Action states:** Creation, submission, and replay controls show pending state and disable repeat clicks until a response. The event form generates a submission key, retains it across uncertain network retries, and shows the server's queue event ID after acceptance. “New event” generates a fresh key; the operator can reuse or edit a key to demonstrate deduplication and conflict. Validation and conflict errors are shown next to the affected action with the server's safe message; transport/server errors show a retry action with the same key. A background delivery failure is shown on its branch and in `Needs attention`, not as a failed event-submission request.
+**Action states:** Creation, submission, and replay controls show pending state and disable repeat clicks until a response. The event form generates a submission key, retains it if the submission response is unknown, and shows the server's queue event ID after acceptance. “New event” generates a fresh key; the operator can reuse or edit a key to demonstrate deduplication and conflict. Validation and conflict errors are shown next to the affected action with the server's safe message; transport/server errors offer a manual “Check or resend submission” action using the same key. A background delivery failure is shown on its branch and in `Needs attention`, not as a failed event-submission request.
 
 ### Visual language (**Chosen direction, implementation tokens proposed**)
 
