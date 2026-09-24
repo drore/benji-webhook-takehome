@@ -9,7 +9,7 @@ tags: [design, user-stories, traceability, readiness, take-home]
 
 # User stories and specification readiness
 
-These stories test whether the [system specification](spec-design-webhook-notifications.md) is precise enough to plan and build the Benji exercise. **Status: workflow grouping, cutover, explicit Disable, and server-generated queue event IDs have agreed direction; the one-active-version policy is provisional and submission-key behavior and other working choices await review.** No implementation or detailed plan has begun.
+These stories test whether the [system specification](spec-design-webhook-notifications.md) is precise enough to plan and build the Benji exercise. **Status: workflow grouping, cutover, explicit Disable, and server-generated queue event IDs with separate submission keys are agreed; the one-active-version policy is provisional and other working choices await review.** No implementation or detailed plan has begun.
 
 ## 1. Actors and scope
 
@@ -20,7 +20,7 @@ The local exercise has three actors: a **customer/operator** who configures name
 | Story | Observable outcome | Spec coverage and testable edge outcome |
 | --- | --- | --- |
 | **US-01 Configure receivers** | As an operator, I create a named workflow, add immutable endpoint versions with URLs and event-type subscriptions, and activate one version for new events. A new secret appears once; later reads omit it. I can see which version replaced which and can explicitly disable or resume a version. | **Agreed, cardinality provisional:** SPEC-002/003/005/006; AC-007/008/015/016. Cutover drains accepted work; Disable pauses it and blocks replay. Revisit one-active policy before finalization. |
-| **US-02 Submit an event** | As an operator, I submit a key, type, and JSON payload. The server returns a queue event ID when it accepts the event. If the submission response is lost or times out, I can resend that request with the same key and content; it returns the original ID without new deliveries. A fresh key creates a distinct event even when the content is identical. | **Queue ID chosen; key behavior for review:** SPEC-004/005/011; AC-002/009. This submission resend is separate from worker delivery retries. Changed type/value under one key conflicts; no-match event persists with an ID; input is bounded. |
+| **US-02 Submit an event** | As an operator, I submit a key, type, and JSON payload. The server returns a queue event ID when it accepts the event. If the submission response is lost or times out, I can resend that request with the same key and content; it returns the original ID without new deliveries. A fresh key creates a distinct event even when the content is identical. | **Identity behavior agreed:** SPEC-004/005/011; AC-002/009. This submission resend is separate from worker delivery retries. Changed type/value under one key conflicts; no-match event persists with an ID; exact input bounds remain for review. |
 | **US-03 Route once per endpoint** | As an operator, I see one logical delivery to each eligible workflow's active endpoint version. Concurrent submissions with the same key, retries, and replay never create a second event–endpoint delivery; attempts belong to the existing delivery. | **Partly agreed:** SPEC-001/002/005/009; AC-001/008/010. Cutover changes future routing; A's accepted work stays assigned to A. |
 | **US-04 Verify a request** | As a receiver, I verify the endpoint signature and reject a changed body, bad signature, or stale timestamp. A stable delivery ID lets me suppress repeated side effects after uncertain timeouts. | **Specified for review:** SPEC-010; AC-005/014. Header names, signed bytes, 300-second window, and receiver secret handoff are explicit. |
 | **US-05 Recover automatically** | As an operator, I see a failed request and later retry on the same delivery. A fail-once receiver can succeed; an always-failing receiver reaches a terminal state. A slow receiver does not block every other delivery. | **Specified for review:** SPEC-007/008; AC-003/011. Three-attempt cycle, timeout, classifier, concurrency, and lease recovery are defined. |
@@ -49,13 +49,13 @@ The local exercise has three actors: a **customer/operator** who configures name
 | CON-001 local and one-day scope | US-09, US-10 | Specified for review: local/demo and production boundary |
 | CON-002 plan, tests, README, AI trail | US-09, US-10 | Specified for review: deliverable criteria; artifacts still pending |
 | USR-001 named workflow and version lineage | US-01, US-11 | Agreed; one-active rule provisional: DEC-003, SPEC-002/005, AC-015 |
-| USR-002 server-generated queue event ID | US-02, US-03 | Chosen direction: SPEC-004/005, AC-002/010; submission-key behavior for review |
+| USR-002 server-generated queue event ID and submission key | US-02, US-03 | Agreed: SPEC-004/005, AC-002/010; exact bounds remain for review |
 
-**Coverage result:** every assignment requirement and the workflow/version relationship have a story. **Readiness result:** explicit Disable and paused-replay outcomes are specified, and server-generated queue IDs are traced to US-02. The idempotency-key behavior and one-active-version policy still need review, along with the other working choices. The behavior draft is not final; tests and runtime evidence remain future work.
+**Coverage result:** every assignment requirement and the workflow/version relationship have a story. **Readiness result:** explicit Disable and paused-replay outcomes are specified, and server-generated queue IDs and submission-key deduplication are traced to US-02. The one-active-version policy still needs review, along with the other working choices. The behavior draft is not final; tests and runtime evidence remain future work.
 
 ## 4. Decisions for owner review before the detailed plan
 
-The [system spec's decision table](spec-design-webhook-notifications.md#11-validation-criteria-and-review-decisions) records workflow/version cutover and explicit Disable as agreed. Review the remaining identity, delivery, trust, operator, and proof choices one at a time; revisit the one-active-version policy before finalization. A change to any material choice updates its acceptance criterion and affected story before planning.
+The [system spec's decision table](spec-design-webhook-notifications.md#11-validation-criteria-and-review-decisions) records workflow/version cutover, explicit Disable, and event identity as agreed. Review the remaining delivery, trust, operator, and proof choices one at a time; revisit the one-active-version policy before finalization. A change to any material choice updates its acceptance criterion and affected story before planning.
 
 Exact CSS values, decorative motion, implementation-specific API paths, and command syntax can wait for the detailed plan because their choice does not change these user outcomes.
 

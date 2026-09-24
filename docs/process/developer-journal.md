@@ -35,12 +35,13 @@ This journal records the visible engineering process for the Benji take-home: ev
 | 2026-09-23 | Working behavior resolutions | Specify single-customer local scope, immutable endpoint identity with pause-on-disable, conflict for changed event content, bounded retry/replay, an exact HMAC format, useful status summaries, and an independent local receiver setup. | Proposed by the assistant in response to Dror's request to adjust the spec. These are reviewable choices, not yet Dror-approved or implemented. |
 | 2026-09-23 | Workflow and endpoint versions | Use a named workflow for a stable business purpose; keep endpoint URL, event types, and secret immutable across versions. One version per workflow is active for new events under a provisional rule. A version change routes future events to B while A's accepted deliveries stay with A. Preserve version lineage and separate histories for later comparison. | Dror accepted immutable webhook subscriptions and proposed the workflow parent and one-active-version rule, then asked to revisit that cardinality before spec finalization. |
 | 2026-09-23 | Explicit Disable | Distinguish an operator stop action from a version cutover. Disable clears active routing if needed, pauses queued/retrying work, blocks replay, and lets an in-flight request finish; Resume restores due work without activating the version. | Dror accepted the proposed stop behavior. The spec and acceptance criteria now state its effect on outstanding work and replay. |
-| 2026-09-23 | Queue event identity | Generate a unique server event ID when a new event is accepted into the durable local queue. Separately propose a sender idempotency key: same key/content returns the original ID, changed content conflicts, and a fresh key creates a distinct event. | Server-generated queue ID is Dror's chosen direction. Submission-key semantics are a working choice for his review, not yet approved. |
+| 2026-09-23 | Queue event identity | Generate a unique server event ID when a new event is accepted into the durable local queue. Use a separate sender idempotency key: same key/content returns the original ID, changed content conflicts, and a fresh key creates a distinct event. | Server-generated queue ID was Dror's chosen direction; he accepted the separate key behavior on 2026-09-24. |
 | 2026-09-24 | Submission resend versus delivery retry | Clarify that the proposed key addresses a dashboard/API submission whose response is unknown: manually resending the same request can recover its original event ID. The worker's later HTTP delivery retry uses the existing event and delivery IDs. | Dror asked what “retrying” means here. This clarifies the proposal without treating the key design as approved. |
+| 2026-09-24 | Submission-key behavior accepted | Keep server-generated queue IDs and separate sender keys. Same key/content returns the accepted event; a fresh key creates a new occurrence even with identical content. Submission resends and outbound delivery retries remain distinct. | Dror said the suggestions make sense. Rechecked the live assignment: it separately requires deduplicated event re-submission and retry of failed deliveries. |
 
 ## Open decisions and next evidence
 
-1. Confirm or revise the proposed submission-key semantics that accompany Dror's server-generated queue ID, one decision at a time.
+1. Continue the remaining behavior choices one at a time; event identity and submission-key semantics are now agreed.
 2. Revisit the one-active-endpoint-per-workflow policy before spec finalization, as Dror requested.
 3. Accept or revise the remaining choices, pass the [readiness gate](../spec/spec-design-user-stories.md#5-spec-readiness-gate), and only then write the detailed development plan before implementation.
 
@@ -233,6 +234,16 @@ This journal records the visible engineering process for the Benji take-home: ev
 > "Retrying with the same key and content" - Retrying how?
 
 **Assistant (summary)** — Clarified that this means sending the event-submission request again after its response is uncertain, such as a timeout after queue acceptance. The same key lets the client recover the original event ID; this is separate from automatic worker retries to a receiver, which add HTTP attempts to an existing delivery. Updated the spec and story language to distinguish these paths; the idempotency-key choice remains under review.
+
+### Turn 23 — accept identity choice and recheck assignment
+
+**Dror (verbatim)**
+
+> I remind you the details of the task: [https://even-foxglove-53c.notion.site/Sr-Software-Engineer-380b9f151bae81218487d84c42741d17](https://even-foxglove-53c.notion.site/Sr-Software-Engineer-380b9f151bae81218487d84c42741d17)
+>
+> Your suggestions makes sense to me
+
+**Assistant (summary)** — Re-read the live Benji assignment and confirmed it separately asks the dashboard to surface deduplicated event re-submission and the system to retry failed deliveries. Recorded Dror's acceptance of the server-generated queue ID plus separate sender idempotency key and updated story readiness. Kept the remaining design choices and provisional one-active-version rule open; no detailed plan or implementation was started.
 
 ## Maintenance rule
 
